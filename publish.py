@@ -23,8 +23,8 @@ logger.addHandler(consoleHandler)
 
 # Component config
 config = {}
-config['wu_id'] = ""
-config['wu_key'] = ""
+config['pws_id'] = ""
+config['pws_pass'] = ""
 
 sub_topics = {}
 sub_topics['wind_dir_deg'] = "winddir"
@@ -53,15 +53,15 @@ if config['config_topic'] is None:
     raise sys.exit()
 
 # Get Weather Underground PWS ID
-config['wu_id'] = os.environ.get('CONFIG_WU_ID')
-if config['wu_id'] is None:
-    logger.info("CONFIG_WU_ID is not set, exiting")
+config['pws_id'] = os.environ.get('CONFIG_PWS_ID')
+if config['pws_id'] is None:
+    logger.info("CONFIG_PWS_ID is not set, exiting")
     raise sys.exit()
 
 # Get Weather Underground PWS KEY
-config['wu_key'] = os.environ.get('CONFIG_WU_KEY')
-if config['wu_key'] is None:
-    logger.info("CONFIG_WU_KEY is not set, exiting")
+config['pws_pass'] = os.environ.get('CONFIG_PWS_PASS')
+if config['pws_pass'] is None:
+    logger.info("CONFIG_PWS_PASS is not set, exiting")
     raise sys.exit()
 
 # Create the callbacks for Mosquitto
@@ -88,9 +88,9 @@ def on_message(mosq, obj, msg):
         # Calculate dew point
         parsed_json['dewpoint'] = parsed_json['temperature_F'] - ((100.0 - parsed_json['humidity']) / 2.788 )
 
-        wu_url = "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?action=updateraw" + \
-                 "&ID=" + config['wu_id'] + \
-                 "&PASSWORD=" + config['wu_key']
+        pws_url = "http://www.pwsweather.com/pwsupdate/pwsupdate.php?" + \
+                 "&ID=" + urllib.parse.quote(config['pws_id']) + \
+                 "&PASSWORD=" + urllib.parse.quote(config['pws_pass'])
 
         for key in parsed_json:
             # logger.info('item: ' + key + ' - ' + str(parsed_json[key]))
@@ -100,13 +100,13 @@ def on_message(mosq, obj, msg):
                 if "time" == key:
                     time = datetime.datetime.fromisoformat(parsed_json[key])
                     value = urllib.parse.quote_plus(time.strftime("%Y-%m-%d %H:%M:%S")) # YYYY-MM-DD HH:MM:SS
-                wu_url += ('&' + arg_name + '=' + value)
-        # logger.info('url: '+ wu_url)
+                pws_url += ('&' + arg_name + '=' + value)
+        # logger.info('url: '+ pws_url)
 
         try:
-            resonse = urllib2.urlopen(wu_url)
+            resonse = urllib2.urlopen(pws_url)
         except urllib2.URLError as e:
-            logger.error('URLError: ' + str(wu_url) + ': ' + str(e.reason))
+            logger.error('URLError: ' + str(pws_url) + ': ' + str(e.reason))
             return None
         except:
             import traceback
