@@ -1,15 +1,18 @@
 # MQTT PWS Weather Publish
 
-Publishes personal weather station data received from a MQTT topic to PWS Weather .
+Publishes personal weather station data received from a MQTT topic to PWS Weather and WU APIs.
 
 This was developed to work with [rtl-433](https://github.com/merbanan/rtl_433) and a La Crosse Breeze Pro station.
 
 Required environment variables
 ```txt
 MQTT_URL "tcp://localhost:8883"
-CONFIG_TOPIC=<MQTT topic> # example sensors/rtl_433/something
+WEATHER_TOPIC=<MQTT topic> # example sensors/rtl_433/something
+PRESSURE_TOPIC=<MQTT topic> # example sensors/BMP_180/something
 CONFIG_PWS_ID=<PWS Weather station id
 CONFIG_PWS_PASS=<PWS Weather password>
+CONFIG_WU_ID=<Weather Underground station id
+CONFIG_WU_KEY=<Weather Underground password>
 ```
 
 **NOTE:** It doesn't look like pwsweather.com supports API keys, and the password is stuck in a GET request :(
